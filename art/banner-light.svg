@@ -1,0 +1,36 @@
+<svg width="1200" height="300" viewBox="0 0 1200 300" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#F8FAFC"/>
+      <stop offset="100%" stop-color="#EEF2F7"/>
+    </linearGradient>
+    <linearGradient id="iconbg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0F172A"/>
+      <stop offset="100%" stop-color="#0E2A2A"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="300" fill="url(#bg)"/>
+  <g transform="translate(60,75) scale(0.29297)">
+    <rect width="512" height="512" rx="112" fill="url(#iconbg)"/>
+    <rect x="56" y="96" width="400" height="236" rx="32" fill="#1E293B"/>
+    <circle cx="96" cy="140" r="14" fill="#34D399"/>
+    <rect x="122" y="132" width="150" height="16" rx="8" fill="#64748B"/>
+    <rect x="84" y="178" width="300" height="30" rx="15" fill="#34D399"/>
+    <rect x="84" y="230" width="336" height="14" rx="7" fill="#475569"/>
+    <rect x="84" y="262" width="250" height="14" rx="7" fill="#475569"/>
+    <circle cx="346" cy="352" r="78" fill="#0B1220" fill-opacity="0.55" stroke="#F8FAFC" stroke-width="22"/>
+    <path d="M318 352 l20 20 l36 -40" fill="none" stroke="#34D399" stroke-width="20" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M402 410 L446 454" stroke="#F8FAFC" stroke-width="30" stroke-linecap="round"/>
+    <g stroke="#34D399" stroke-width="6" fill="none" stroke-linecap="round">
+      <path d="M110 372 V430 M110 400 H150 M110 430 H150"/>
+    </g>
+    <rect x="94" y="352" width="32" height="24" rx="6" fill="#34D399"/>
+    <rect x="150" y="390" width="56" height="20" rx="6" fill="#334155"/>
+    <rect x="150" y="420" width="56" height="20" rx="6" fill="#334155"/>
+</g>
+  <text x="235" y="150" font-family="Helvetica, Arial, sans-serif" font-size="72" font-weight="700" fill="#0F172A">Start SEO Kit</text>
+  <text x="238" y="192" font-family="Helvetica, Arial, sans-serif" font-size="22" font-weight="600" fill="#059669" letter-spacing="0.2">Meta, sitemaps, JSON-LD and OG images for TanStack Start</text>
+  <g font-family="Helvetica, Arial, sans-serif" font-size="15" font-weight="600" fill="#334155" text-anchor="middle"><g transform="translate(238,220)"><rect width="128" height="32" rx="16.0" fill="#FFFFFF" stroke="#CBD5E1"/><text x="64.0" y="21.12">typed head()</text></g><g transform="translate(376,220)"><rect width="156" height="32" rx="16.0" fill="#FFFFFF" stroke="#CBD5E1"/><text x="78.0" y="21.12">sitemap + robots</text></g><g transform="translate(542,220)"><rect width="96" height="32" rx="16.0" fill="#FFFFFF" stroke="#CBD5E1"/><text x="48.0" y="21.12">JSON-LD</text></g><g transform="translate(648,220)"><rect width="150" height="32" rx="16.0" fill="#FFFFFF" stroke="#CBD5E1"/><text x="75.0" y="21.12">OG image route</text></g></g>
+  <g transform="translate(950,30)" font-family="Helvetica, Arial, sans-serif" font-weight="700" text-anchor="middle"><path d="M60 40 V70 H170 M60 70 H-50 M60 70 V100 M170 70 V100 M-50 70 V100 M170 140 V170" fill="none" stroke="#CBD5E1" stroke-width="3"/><rect x="30" y="10" width="60" height="32" rx="10" fill="#059669"/><text x="60" y="32" font-size="17" fill="#0B1220">/</text><rect x="-98" y="100" width="96" height="40" rx="10" fill="#FFFFFF" stroke="#CBD5E1"/><text x="-50" y="126" font-size="16" fill="#475569">/blog</text><rect x="12" y="100" width="96" height="40" rx="10" fill="#FFFFFF" stroke="#CBD5E1"/><text x="60" y="126" font-size="16" fill="#475569">/docs</text><rect x="122" y="100" width="96" height="40" rx="10" fill="#FFFFFF" stroke="#CBD5E1"/><text x="170" y="126" font-size="16" fill="#475569">/shop</text><rect x="112" y="170" width="116" height="36" rx="10" fill="none" stroke="#059669" stroke-width="2.5" stroke-dasharray="6 5"/><text x="170" y="194" font-size="15" fill="#059669">$productId</text></g>
+  <text x="1170" y="282" text-anchor="end" font-family="Helvetica, Arial, sans-serif" font-size="15" fill="#64748B">amjadiqbal/start-seo-kit</text>
+</svg>

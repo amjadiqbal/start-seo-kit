@@ -1,0 +1,35 @@
+<svg width="1280" height="640" viewBox="0 0 1280 640" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0B1220"/>
+      <stop offset="100%" stop-color="#111C33"/>
+    </linearGradient>
+    <linearGradient id="iconbg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0F172A"/>
+      <stop offset="100%" stop-color="#0E2A2A"/>
+    </linearGradient>
+  </defs>
+  <rect width="1280" height="640" fill="url(#bg)"/>
+  <g transform="translate(530,64) scale(0.42969)">
+    <rect width="512" height="512" rx="112" fill="url(#iconbg)"/>
+    <rect x="56" y="96" width="400" height="236" rx="32" fill="#1E293B"/>
+    <circle cx="96" cy="140" r="14" fill="#34D399"/>
+    <rect x="122" y="132" width="150" height="16" rx="8" fill="#64748B"/>
+    <rect x="84" y="178" width="300" height="30" rx="15" fill="#34D399"/>
+    <rect x="84" y="230" width="336" height="14" rx="7" fill="#475569"/>
+    <rect x="84" y="262" width="250" height="14" rx="7" fill="#475569"/>
+    <circle cx="346" cy="352" r="78" fill="#0B1220" fill-opacity="0.55" stroke="#F8FAFC" stroke-width="22"/>
+    <path d="M318 352 l20 20 l36 -40" fill="none" stroke="#34D399" stroke-width="20" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M402 410 L446 454" stroke="#F8FAFC" stroke-width="30" stroke-linecap="round"/>
+    <g stroke="#34D399" stroke-width="6" fill="none" stroke-linecap="round">
+      <path d="M110 372 V430 M110 400 H150 M110 430 H150"/>
+    </g>
+    <rect x="94" y="352" width="32" height="24" rx="6" fill="#34D399"/>
+    <rect x="150" y="390" width="56" height="20" rx="6" fill="#334155"/>
+    <rect x="150" y="420" width="56" height="20" rx="6" fill="#334155"/>
+</g>
+  <text x="640" y="380" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="92" font-weight="700" fill="#F8FAFC">Start SEO Kit</text>
+  <text x="640" y="432" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="30" font-weight="600" fill="#34D399" letter-spacing="0.2">Meta, sitemaps, JSON-LD and OG images for TanStack Start</text>
+  <g font-family="Helvetica, Arial, sans-serif" font-size="18" font-weight="600" fill="#CBD5E1" text-anchor="middle"><g transform="translate(290,478)"><rect width="158" height="40" rx="20.0" fill="#16213A" stroke="#24324F"/><text x="79.0" y="26.40">typed head()</text></g><g transform="translate(464,478)"><rect width="192" height="40" rx="20.0" fill="#16213A" stroke="#24324F"/><text x="96.0" y="26.40">sitemap + robots</text></g><g transform="translate(672,478)"><rect width="118" height="40" rx="20.0" fill="#16213A" stroke="#24324F"/><text x="59.0" y="26.40">JSON-LD</text></g><g transform="translate(806,478)"><rect width="184" height="40" rx="20.0" fill="#16213A" stroke="#24324F"/><text x="92.0" y="26.40">OG image route</text></g></g>
+  <text x="640" y="600" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="20" fill="#64748B">github.com/amjadiqbal/start-seo-kit</text>
+</svg>
