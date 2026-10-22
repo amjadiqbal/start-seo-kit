@@ -16,6 +16,10 @@ describe('og image', () => {
     })
     expect(typeof svg).toBe('string')
     expect(svg).toMatch(/^<svg[^>]+width="1200"[^>]+height="630"/)
+    // every glyph run (title, description, eyebrow, footer) starts inside the canvas
+    const starts = [...(svg as string).matchAll(/d="M([\d.]+) ([\d.]+)/g)].map((m) => Number(m[2]))
+    expect(starts.length).toBeGreaterThanOrEqual(4)
+    for (const y of starts) expect(y).toBeLessThan(630)
   })
 
   it('serves a PNG from a handler, loading the wasm from node_modules', async () => {

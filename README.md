@@ -183,7 +183,8 @@ import { routeTree } from './routeTree.gen'
 export const sitemap = createSitemap({
   siteUrl: 'https://acme.dev',
   sources: {
-    pages: routesFromTree(routeTree, { exclude: ['/login', /^\/admin/] }),
+    // a function, so the route tree is read per request (this module is imported by a route in routeTree.gen)
+    pages: () => routesFromTree(routeTree, { exclude: ['/login', /^\/admin/] }),
     posts: async () => (await db.posts.list()).map((p) => ({ loc: `/posts/${p.slug}`, lastmod: p.updatedAt })),
   },
 })
@@ -274,7 +275,7 @@ export const Route = createFileRoute('/og/$slug')({
 ```
 
 - `ogCard()` is a ready-made design (dark background, emerald accent, all colours configurable). You can return your own JSX instead: any element satori accepts.
-- On Node, the resvg `.wasm` is read from `node_modules` automatically. On edge runtimes (Cloudflare Workers and similar), import the wasm module yourself and pass it as `wasm`.
+- Tested on Node, where the resvg `.wasm` is read from `node_modules` automatically. If your runtime can't read `node_modules`, the `wasm` option takes the module or its bytes; that path is not tested yet.
 - `format: 'svg'` skips resvg and returns SVG (fine for testing; most social sites want PNG).
 - Responses are cached for a day (`cacheControl` to change).
 - `renderOgImage(element, options)` is exported for use outside a route, e.g. at build time.
@@ -283,7 +284,7 @@ export const Route = createFileRoute('/og/$slug')({
 
 - TanStack Start / Router **1.131 or later** (the `server.handlers` route option). Tested with `@tanstack/react-start` 1.169.3 and `@tanstack/react-router` 1.170.45.
 - Node 20 or later. ESM only.
-- React. The helpers only return plain objects and `Response`s, so they should work with Solid Start as well, but that is not tested yet.
+- React (`@tanstack/react-start`). Other Start adapters are not tested yet.
 
 ## What's tested
 
@@ -291,13 +292,13 @@ export const Route = createFileRoute('/og/$slug')({
 - Type tests: `seo()` output assigned to a Router route's `head()` with no casts.
 - A real TanStack Start app installing the packed tarball: head tags in the server-rendered HTML, `/sitemap.xml`, a child sitemap, `/robots.txt` and an OG image route, checked in a browser.
 
-Not tested: Solid Start; edge runtimes (Workers, Netlify Edge) for the OG route; and live Google indexing (the commerce output follows Google's documentation, but whether a page gets a rich result is Google's call).
+Not tested: Start adapters other than React; runtimes other than Node for the OG route; and live Google indexing (the commerce output follows Google's documentation, but whether a page gets a rich result is Google's call).
 
 ## Coming from hand-written head tags or `super-sitemap`
 
 - **Hand-written `head()`**: replace each `meta` array with one `seo({...})` call. Your existing `scripts` and `styles` stay as they are.
 - **Start's prerender sitemap**: keep it for fully static sites. Use `createSitemap` when pages come from a database or the site isn't prerendered, and turn the built-in `sitemap` option off so the two don't both write `/sitemap.xml`.
-- **`super-sitemap`**: its route list maps to `routesFromTree` plus one source per dynamic route (`posts: () => slugs.map(...)`). Chunking into a sitemap index is automatic.
+- **`super-sitemap`**: its route list maps to `() => routesFromTree(routeTree)` plus one source per dynamic route (`posts: () => slugs.map(...)`). Chunking into a sitemap index is automatic.
 
 ## Support
 

@@ -26,7 +26,7 @@ export interface RenderOgOptions {
   format?: 'png' | 'svg'
   /**
    * The resvg `.wasm` for PNG output. On Node it is read from `node_modules` when left out.
-   * On edge runtimes (Workers and similar) pass it yourself.
+   * Where `node_modules` cannot be read, pass it yourself.
    */
   wasm?: WasmSource | (() => Awaitable<WasmSource>)
 }
@@ -55,7 +55,7 @@ async function nodeWasm(): Promise<Uint8Array> {
   } catch (error) {
     throw new Error(
       'start-seo-kit/og: could not load @resvg/resvg-wasm/index_bg.wasm. Install @resvg/resvg-wasm, ' +
-        'or pass the wasm option (required on edge runtimes), or use format: "svg".',
+        'or pass the wasm option, or use format: "svg".',
       { cause: error },
     )
   }
@@ -137,19 +137,19 @@ export function ogCard(input: OgCardInput): OgElement {
   const accent = input.accent ?? '#34D399'
   const el = (style: Record<string, unknown>, children: unknown) => ({ type: 'div', props: { style, children } })
   const titleSize = input.title.length > 60 ? 56 : input.title.length > 34 ? 68 : 80
+  // satori sizes boxes as content-box, so the root fills the canvas with no padding and an inner
+  // column grows into it with margins; padding on a 100% box would push the footer off the canvas.
   return el(
     {
       width: '100%',
       height: '100%',
       display: 'flex',
       flexDirection: 'column',
-      justifyContent: 'space-between',
-      padding: '72px 80px',
       background: input.background ?? '#0B1220',
       color: fg,
       fontFamily: input.fontFamily,
     },
-    [
+    [el({ display: 'flex', flexDirection: 'column', justifyContent: 'space-between', flexGrow: 1, margin: '72px 80px' }, [
       el({ display: 'flex', flexDirection: 'column', gap: 24 }, [
         el({ display: 'flex', width: 96, height: 8, borderRadius: 4, background: accent }, []),
         input.eyebrow ? el({ display: 'flex', fontSize: 30, color: accent, fontWeight: 600 }, input.eyebrow) : null,
@@ -157,6 +157,7 @@ export function ogCard(input: OgCardInput): OgElement {
         input.description ? el({ display: 'flex', fontSize: 32, color: muted, lineHeight: 1.35 }, input.description) : null,
       ].filter(Boolean)),
       input.footer ? el({ display: 'flex', fontSize: 26, color: muted }, input.footer) : el({ display: 'flex' }, []),
+    ]),
     ],
   )
 }

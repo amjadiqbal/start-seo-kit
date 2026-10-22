@@ -128,6 +128,10 @@ describe('routesFromTree', () => {
     },
   }
 
+  it('explains the circular-import case instead of crashing', () => {
+    expect(() => routesFromTree(undefined)).toThrow(/circular import/)
+  })
+
   it('lists static pages only, deduped, with staticData applied', () => {
     const entries = routesFromTree(tree, { exclude: ['/drafts'], defaults: { changefreq: 'weekly' } })
     expect(entries).toEqual([

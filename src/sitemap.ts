@@ -213,6 +213,12 @@ export interface RoutesFromTreeOptions {
  * `staticData: { sitemap: false }`. Per-route `staticData.sitemap` values (priority, changefreq) are applied.
  */
 export function routesFromTree(routeTree: unknown, options: RoutesFromTreeOptions = {}): SitemapEntry[] {
+  if (!routeTree || typeof routeTree !== 'object') {
+    throw new TypeError(
+      'start-seo-kit: routesFromTree() got no route tree. If your sitemap module imports routeTree.gen and is itself ' +
+        'imported by a route, that is a circular import: make the source lazy, e.g. `pages: () => routesFromTree(routeTree)`.',
+    )
+  }
   const seen = new Map<string, SitemapEntry>()
   const visit = (route: TreeRoute) => {
     const kids = route.children ? Object.values(route.children) : []
