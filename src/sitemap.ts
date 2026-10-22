@@ -91,9 +91,10 @@ export function sitemapIndexXml(sitemaps: Iterable<SitemapIndexEntry>, options: 
 /**
  * Where the URLs of one sitemap section come from:
  * - an array of entries,
- * - a function returning them (sync or async, e.g. a database query), or
- * - a paginated source with `count()` and `entries({ offset, limit })` for very large sets,
- *   so the index never loads every row.
+ * - a function returning them (sync or async, e.g. a database query), called once per request
+ *   to `/sitemap.xml` and once per child-sitemap request, loading every entry each time, or
+ * - a paginated source with `count()` and `entries({ offset, limit })` for large sets:
+ *   the index calls only `count()`, and each child sitemap loads only its own range.
  */
 export type SitemapSource =
   | SitemapEntry[]
@@ -141,14 +142,12 @@ export function createSitemap(options: CreateSitemapOptions): SitemapHandlers {
     if (!/^[\w-]+$/.test(name)) throw new TypeError(`start-seo-kit: invalid sitemap source name "${name}"`)
   }
 
-  const count = async (src: SitemapSource) =>
-    Array.isArray(src) ? src.length : typeof src === 'function' ? (await src()).length : await src.count()
-  const slice = async (src: SitemapSource, offset: number, limit: number) =>
-    Array.isArray(src)
-      ? src.slice(offset, offset + limit)
-      : typeof src === 'function'
-        ? (await src()).slice(offset, offset + limit)
-        : await src.entries({ offset, limit })
+  // Arrays and functions are loaded in full (once per request); paginated sources load one range.
+  const load = async (src: SitemapSource) => (Array.isArray(src) ? src : typeof src === 'function' ? await src() : undefined)
+  const slice = async (src: SitemapSource, offset: number, limit: number) => {
+    const loaded = await load(src)
+    return loaded ? loaded.slice(offset, offset + limit) : await (src as Exclude<SitemapSource, unknown[] | Function>).entries({ offset, limit })
+  }
   const all = async () => {
     const out: SitemapEntry[] = []
     for (const src of Object.values(options.sources)) out.push(...(await slice(src, 0, Number.MAX_SAFE_INTEGER)))
@@ -159,15 +158,23 @@ export function createSitemap(options: CreateSitemapOptions): SitemapHandlers {
     entries: all,
 
     async index() {
-      const counts = await Promise.all(Object.entries(options.sources).map(async ([n, s]) => [n, await count(s), s] as const))
-      const total = counts.reduce((sum, [, c]) => sum + c, 0)
+      const sections = await Promise.all(
+        Object.entries(options.sources).map(async ([name, src]) => {
+          const loaded = await load(src)
+          const c = loaded ? loaded.length : await (src as Exclude<SitemapSource, unknown[] | Function>).count()
+          return { name, src, loaded, count: c }
+        }),
+      )
+      const total = sections.reduce((sum, s) => sum + s.count, 0)
       const useIndex = options.index === true || (options.index !== false && total > max)
       if (!useIndex) {
         if (total > max) throw new RangeError(`start-seo-kit: ${total} URLs exceed maxUrlsPerSitemap (${max}); enable index`)
-        return new Response(sitemapXml(await all(), options), { headers })
+        const entries: SitemapEntry[] = []
+        for (const s of sections) entries.push(...(s.loaded ?? (await slice(s.src, 0, s.count))))
+        return new Response(sitemapXml(entries, options), { headers })
       }
       const children: SitemapIndexEntry[] = []
-      for (const [name, c, src] of counts) {
+      for (const { name, count: c, src } of sections) {
         const lastmod = !Array.isArray(src) && typeof src === 'object' && src.lastmod ? await src.lastmod() : undefined
         for (let i = 0; i < Math.max(1, Math.ceil(c / max)); i++) {
           children.push({ loc: `${basePath}/${name}-${i + 1}.xml`, lastmod })

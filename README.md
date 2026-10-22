@@ -7,7 +7,7 @@
 
 # Start SEO Kit: meta tags, sitemaps, robots.txt, JSON-LD and OG images for TanStack Start
 
-Typed SEO helpers for [TanStack Start](https://tanstack.com/start) and TanStack Router: a `head()` builder with title templates, canonical URLs, Open Graph, Twitter cards, robots and hreflang; a dynamic `sitemap.xml` (with a sitemap index for large sites) and `robots.txt` served from Start server routes; typed JSON-LD structured data; e-commerce Product schema for Google product rich results; and an optional Open Graph image route.
+Typed SEO helpers for [TanStack Start](https://tanstack.com/start) and TanStack Router: a `head()` builder with title templates, canonical URLs, Open Graph, Twitter cards, robots and hreflang; a dynamic `sitemap.xml` (with a sitemap index for large sites) and `robots.txt` served from Start server routes; typed JSON-LD structured data; e-commerce Product schema that follows Google's product structured-data rules; and an optional Open Graph image route.
 
 [![npm](https://img.shields.io/npm/v/@amjadiqbal/start-seo-kit?style=flat-square)](https://www.npmjs.com/package/@amjadiqbal/start-seo-kit)
 [![bundle size](https://img.shields.io/bundlephobia/minzip/@amjadiqbal/start-seo-kit?style=flat-square)](https://bundlephobia.com/package/@amjadiqbal/start-seo-kit)
@@ -74,9 +74,11 @@ That one call produces `<title>Hello | Acme</title>`, the description, `og:title
 
 Need more? `seo()` returns `{ meta, links }`, so spread it and add your own: `head: () => ({ ...seo({ title: 'About' }), scripts: [...] })`.
 
+There is also a standalone `seo()` export for one-off use without `defineSeo()`. It has no site URL to resolve against, so it throws on a relative `path`, `canonical` or `image` unless you pass `siteUrl`.
+
 | Option | What it does |
 |---|---|
-| `title`, `titleTemplate` | Page title through the site template (`%s \| Acme`); `titleTemplate: false` uses the title as is. |
+| `title`, `titleTemplate` | Page title through the site template (`%s \| Acme`); `titleTemplate: false` uses the title as is. `og:title` and `twitter:title` get the title **without** the template; `socialTitle` overrides them. |
 | `description` | `description`, `og:description` and `twitter:description`. |
 | `path` / `canonical` | Canonical link and `og:url`. `canonical: false` drops the link. |
 | `image` | Share image (string or `{ url, width, height, alt, type }`); `false` drops the site default. |
@@ -99,7 +101,7 @@ TanStack Router merges `head()` from every matched route. For `meta`, the deepes
 
 ## Structured data: `jsonLd`
 
-Typed builders for common schema.org types. Each returns a JSON-LD object; pass it to `seo({ jsonLd })` and Router renders it as `<script type="application/ld+json">` (HTML-escaped).
+Typed builders for common schema.org types. Each returns a plain JSON-LD object; pass it to `seo({ jsonLd })`. The kit adds it to `meta` as `{ 'script:ld+json': object }` and does no serialising itself: TanStack Router turns it into `<script type="application/ld+json">` and HTML-escapes it (checked in a real app: a `</script>` inside a JSON-LD string does not end the script).
 
 ```ts
 import { jsonLd } from '@amjadiqbal/start-seo-kit'
@@ -161,7 +163,23 @@ export const Route = createFileRoute('/p/$slug')({
 
 ### Check a product against Google's rules
 
-`checkProduct(product, { merchantListing: true })` returns `{ errors, warnings }` based on Google's product snippet, merchant listing, shipping and return-policy documentation (checked 2026-10-22): a missing name, image or offer, a price with a currency symbol, a lowercase currency, shipping in another currency, a finite return window without days, a rating without a count, and so on. It never throws, so it's safe in a unit test over your catalogue:
+`checkProduct(product, options)` returns `{ errors, warnings }` based on Google's product snippet, merchant listing, shipping and return-policy documentation (checked 2026-10-22). It never throws.
+
+Errors (the page isn't eligible for that result):
+
+- `name` is empty.
+- None of `offers`, `rating` or `reviews` is set (product snippets need one of them).
+- With `{ merchantListing: true }` only: no `image`, or no `offers`.
+- A price, `lowPrice`, `highPrice` or shipping rate that isn't a plain non-negative number (e.g. `'$1,000'`).
+- A currency that isn't three upper-case letters (`usd` fails).
+- Shipping in a different currency from its offer, or shipping without `handlingDays` or `transitDays`.
+- A `finite` return policy without `days`.
+- A `rating` without `count` or `reviewCount`, or a value outside `worst`..`best` (default 1..5).
+- A review with an empty `author`.
+
+Warnings (recommended, not required): `offers` missing while there are ratings or reviews; an `AggregateOffer` when checking for merchant listings; an offer without `availability`; a review with only one pros/cons statement; no `brand`; none of `gtin`, `mpn` or `sku`; no `description`.
+
+So a product with a rating but no offer passes the snippet check with a warning, and fails only with `merchantListing: true`. Run it in a unit test over your catalogue:
 
 ```ts
 for (const p of await listProducts()) {
@@ -211,7 +229,9 @@ export const Route = createFileRoute('/sitemaps/$name')({
 ```
 
 - While every URL fits in one file (50,000 by default, `maxUrlsPerSitemap`), `/sitemap.xml` is a plain `<urlset>`. Past that it becomes a `<sitemapindex>` pointing at `/sitemaps/pages-1.xml`, `/sitemaps/posts-1.xml`, `/sitemaps/posts-2.xml` and so on. `index: true` always serves an index.
-- For very large tables, give a source `count()` and `entries({ offset, limit })` so each request loads only one chunk: `posts: { count: () => db.posts.count(), entries: ({ offset, limit }) => db.posts.page(offset, limit) }`.
+- **Cost per request:** an array or function source is loaded in full once per request: once for `/sitemap.xml`, and again for each child sitemap request (which then keeps only its own chunk). That's fine for thousands of rows. For large tables, give the source `count()` and `entries({ offset, limit })` instead: the index then calls only `count()`, and each child sitemap loads only its own range: `posts: { count: () => db.posts.count(), entries: ({ offset, limit }) => db.posts.page(offset, limit) }`. Put a CDN cache in front of the sitemap routes either way (the default `Cache-Control` is an hour).
+- `index: false` always serves a single `<urlset>` and throws a `RangeError` (a 500 response) once the total passes `maxUrlsPerSitemap`.
+- A child sitemap past the last chunk returns 404; page 1 of an empty source returns an empty `<urlset>`, so links from the index never break.
 - Entries take `loc`, `lastmod`, `changefreq`, `priority`, hreflang `alternates` and `images`.
 - `routesFromTree` lists parameter-free page routes. It skips dynamic routes (`$id`, `$`), server-only routes, paths with a file extension and routes with `staticData: { sitemap: false }`. `staticData: { sitemap: { priority: 0.8 } }` sets per-route values. If you use `staticData` with TypeScript, declare the field once:
 
@@ -282,15 +302,15 @@ export const Route = createFileRoute('/og/$slug')({
 
 ## Compatibility
 
-- TanStack Start / Router **1.131 or later** (the `server.handlers` route option). Tested with `@tanstack/react-start` 1.169.3 and `@tanstack/react-router` 1.170.45.
+- Tested with `@tanstack/react-start` 1.169.3 and `@tanstack/react-router` 1.170.45. The server-route helpers need Start's `server.handlers` route option; older versions aren't tested. The package has no TanStack peer dependency because it imports nothing from TanStack: it returns plain objects and `Response`s.
 - Node 20 or later. ESM only.
 - React (`@tanstack/react-start`). Other Start adapters are not tested yet.
 
 ## What's tested
 
-- Unit tests (Vitest) for every helper: tag output, URL handling, escaping, sitemap chunking and the index, route-tree walking, robots rules, the commerce schema and `checkProduct` rules, and a real PNG rendered through satori and resvg-wasm.
+- Unit tests (Vitest) for every helper: tag output, URL handling, XML escaping in sitemaps, sitemap chunking, the index and how often sources are loaded, route-tree walking, robots rules, the commerce schema and `checkProduct` rules, and a real PNG rendered through satori and resvg-wasm.
 - Type tests: `seo()` output assigned to a Router route's `head()` with no casts.
-- A real TanStack Start app installing the packed tarball: head tags in the server-rendered HTML, `/sitemap.xml`, a child sitemap, `/robots.txt` and an OG image route, checked in a browser.
+- A real TanStack Start app installing the packed tarball: head tags in the server-rendered HTML and after client-side navigation, JSON-LD escaping by Router, `/sitemap.xml`, child sitemaps, `/robots.txt` and an OG image route, in dev and in a production build, checked in a browser.
 
 Not tested: Start adapters other than React; runtimes other than Node for the OG route; and live Google indexing (the commerce output follows Google's documentation, but whether a page gets a rich result is Google's call).
 

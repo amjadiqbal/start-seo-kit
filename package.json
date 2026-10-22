@@ -1,6 +1,6 @@
 {
   "name": "@amjadiqbal/start-seo-kit",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "SEO kit for TanStack Start: typed head() meta tags (title templates, canonical, Open Graph, Twitter cards, robots, hreflang), dynamic sitemap and robots.txt server routes, JSON-LD helpers, e-commerce Product schema and an optional Open Graph image route.",
   "keywords": [
     "tanstack",

@@ -93,6 +93,45 @@ describe('createSitemap', () => {
     expect((await s.page(req('https://acme.dev/sitemaps/posts.xml'))).status).toBe(404)
   })
 
+  it('calls a function source once per request, and a paginated source only for its range', async () => {
+    let calls = 0
+    const ranges: Array<[number, number]> = []
+    const s = createSitemap({
+      siteUrl: 'https://acme.dev',
+      maxUrlsPerSitemap: 2,
+      sources: {
+        posts: async () => {
+          calls++
+          return posts
+        },
+        big: {
+          count: () => 1000,
+          entries: ({ offset, limit }) => {
+            ranges.push([offset, limit])
+            return [{ loc: `/big/${offset}` }]
+          },
+        },
+      },
+    })
+    await s.index(req('https://acme.dev/sitemap.xml'))
+    expect(calls).toBe(1)
+    expect(ranges).toEqual([])
+    await s.page(req('https://acme.dev/sitemaps/big-3.xml'))
+    expect(ranges).toEqual([[4, 2]])
+
+    const small = createSitemap({ siteUrl: 'https://acme.dev', sources: { posts: async () => (calls++, posts) } })
+    calls = 0
+    await small.index(req('https://acme.dev/sitemap.xml'))
+    expect(calls).toBe(1)
+  })
+
+  it('serves an empty urlset for page 1 of an empty source', async () => {
+    const s = createSitemap({ siteUrl: 'https://acme.dev', index: true, sources: { posts: [] } })
+    const res = await s.page(req('https://acme.dev/sitemaps/posts-1.xml'))
+    expect(res.status).toBe(200)
+    expect(await res.text()).not.toContain('<url>')
+  })
+
   it('can force an index or refuse one', async () => {
     const forced = createSitemap({ siteUrl: 'https://acme.dev', index: true, sources: { pages: [{ loc: '/' }] } })
     expect(await (await forced.index(req('https://acme.dev/sitemap.xml'))).text()).toContain('<sitemapindex')
