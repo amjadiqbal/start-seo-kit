@@ -1,0 +1,91 @@
+{
+  "name": "@amjadiqbal/start-seo-kit",
+  "version": "0.1.0",
+  "description": "SEO kit for TanStack Start: typed head() meta tags (title templates, canonical, Open Graph, Twitter cards, robots, hreflang), dynamic sitemap and robots.txt server routes, JSON-LD helpers, e-commerce Product schema and an optional Open Graph image route.",
+  "keywords": [
+    "tanstack",
+    "tanstack-start",
+    "tanstack-router",
+    "seo",
+    "meta-tags",
+    "sitemap",
+    "sitemap-index",
+    "robots-txt",
+    "json-ld",
+    "structured-data",
+    "ecommerce",
+    "product-schema",
+    "rich-results",
+    "open-graph",
+    "og-image",
+    "twitter-card",
+    "hreflang"
+  ],
+  "homepage": "https://github.com/amjadiqbal/start-seo-kit#readme",
+  "bugs": "https://github.com/amjadiqbal/start-seo-kit/issues",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/amjadiqbal/start-seo-kit.git"
+  },
+  "license": "MIT",
+  "author": "Amjad Iqbal (https://amjad.com.pk)",
+  "type": "module",
+  "sideEffects": false,
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./commerce": {
+      "types": "./dist/commerce.d.ts",
+      "default": "./dist/commerce.js"
+    },
+    "./og": {
+      "types": "./dist/og.d.ts",
+      "default": "./dist/og.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "dist",
+    "CHANGELOG.md"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "build": "tsdown",
+    "typecheck": "tsc --noEmit",
+    "lint": "oxlint src tests",
+    "test": "vitest run",
+    "ci": "bash scripts/ci-local.sh"
+  },
+  "peerDependencies": {
+    "@resvg/resvg-wasm": "^2.6.0",
+    "satori": ">=0.10.0"
+  },
+  "peerDependenciesMeta": {
+    "@resvg/resvg-wasm": {
+      "optional": true
+    },
+    "satori": {
+      "optional": true
+    }
+  },
+  "devDependencies": {
+    "@fontsource/inter": "^5.3.0",
+    "@resvg/resvg-wasm": "^2.6.2",
+    "@tanstack/react-router": "^1.170.45",
+    "@tanstack/react-start": "^1.169.3",
+    "@types/node": "^22.20.5",
+    "@types/react": "^19.3.0",
+    "oxlint": "^1.89.0",
+    "publint": "^0.3.25",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1",
+    "satori": "^0.63.2",
+    "tsdown": "^0.23.1",
+    "typescript": "^5.9.3",
+    "vitest": "^5.0.5"
+  }
+}
